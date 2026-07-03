@@ -62,9 +62,11 @@ export function Navbar() {
         right: 0,
         zIndex: 50,
         transition: "all 0.3s",
-        backgroundColor: scrolled ? "rgba(10,10,10,0.9)" : "transparent",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        boxShadow: scrolled ? "0 4px 30px rgba(0,0,0,0.5)" : "none",
+        backgroundColor: scrolled ? "rgba(10,10,10,0.8)" : "transparent",
+        backdropFilter: scrolled ? "blur(20px)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
+        boxShadow: scrolled ? "0 4px 30px rgba(0,0,0,0.3)" : "none",
+        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.05)" : "none",
       }}
     >
       <div
@@ -80,11 +82,14 @@ export function Navbar() {
         <a
           href="#"
           style={{
-            color: "#64ffda",
             fontFamily: "monospace",
-            fontSize: "1.2rem",
+            fontSize: "1.25rem",
             fontWeight: 700,
             textDecoration: "none",
+            background: "linear-gradient(135deg, #64ffda, #00d4ff)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
           }}
         >
           &lt;{personalInfo.name.split(" ")[0]} /&gt;
@@ -93,29 +98,10 @@ export function Navbar() {
         {/* Desktop Nav */}
         <div
           className="hidden md:flex"
-          style={{ alignItems: "center", gap: "2rem" }}
+          style={{ alignItems: "center", gap: "2.5rem" }}
         >
-          {navLinks.map((link, i) => (
-            <a
-              key={link.name}
-              href={link.href}
-              style={{
-                fontSize: "0.875rem",
-                fontFamily: "monospace",
-                color: "#8892b0",
-                textDecoration: "none",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "#64ffda")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "#8892b0")
-              }
-            >
-              <span style={{ color: "#64ffda", marginRight: "0.25rem" }}>
-                0{i + 1}.
-              </span>
+          {navLinks.map((link) => (
+            <a key={link.name} href={link.href} className="nav-link">
               {link.name}
             </a>
           ))}
@@ -125,22 +111,8 @@ export function Navbar() {
             target="_blank"
             rel="noopener noreferrer"
             id="nav-resume"
-            style={{
-              padding: "0.5rem 1rem",
-              border: "1px solid #64ffda",
-              color: "#64ffda",
-              borderRadius: "4px",
-              textDecoration: "none",
-              fontSize: "0.875rem",
-              fontFamily: "monospace",
-              transition: "background 0.2s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "rgba(100,255,218,0.1)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
+            className="glow-btn glow-btn-outline"
+            style={{ padding: "0.5rem 1.25rem", fontSize: "0.8rem" }}
           >
             Resume
           </a>
@@ -166,8 +138,10 @@ export function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden"
             style={{
-              backgroundColor: "#112240",
-              borderTop: "1px solid #233554",
+              background: "rgba(10,10,10,0.95)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              borderTop: "1px solid rgba(255,255,255,0.08)",
             }}
           >
             <div
@@ -175,33 +149,37 @@ export function Navbar() {
                 display: "flex",
                 flexDirection: "column",
                 padding: "1.5rem",
-                gap: "1rem",
+                gap: "1.25rem",
               }}
             >
-              {navLinks.map((link, i) => (
+              {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
                   style={{
-                    color: "#8892b0",
+                    color: "#94a3b8",
                     textDecoration: "none",
-                    fontFamily: "monospace",
+                    fontSize: "1rem",
+                    fontWeight: 500,
                     transition: "color 0.2s",
                   }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#64ffda")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "#8892b0")
-                  }
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#f0f0f0")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#94a3b8")}
                 >
-                  <span style={{ color: "#64ffda", marginRight: "0.5rem" }}>
-                    0{i + 1}.
-                  </span>
                   {link.name}
                 </a>
               ))}
+              <a
+                href={resumeHref}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="glow-btn glow-btn-outline"
+                style={{ marginTop: "0.5rem", justifyContent: "center" }}
+              >
+                Resume
+              </a>
             </div>
           </motion.div>
         )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Sparkles } from "lucide-react";
 import { usePortfolio } from "@/contexts/PortfolioContext";
 
 export function Hero() {
@@ -17,6 +17,7 @@ export function Hero() {
         justifyContent: "center",
         padding: "0 1.5rem",
         position: "relative",
+        zIndex: 2,
       }}
     >
       <div style={{ maxWidth: "56rem", width: "100%" }}>
@@ -25,12 +26,16 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           style={{
-            color: "#64ffda",
             fontFamily: "monospace",
-            fontSize: "1.125rem",
-            marginBottom: "1rem",
+            fontSize: "1rem",
+            marginBottom: "1.5rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            color: "#64ffda",
           }}
         >
+          <Sparkles size={16} />
           Hi, my name is
         </motion.p>
 
@@ -39,11 +44,12 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           style={{
-            fontSize: "clamp(2.5rem, 8vw, 5rem)",
-            fontWeight: 700,
-            color: "#e6e6e6",
+            fontSize: "clamp(2.5rem, 8vw, 5.5rem)",
+            fontWeight: 800,
             marginBottom: "0.5rem",
-            lineHeight: 1.1,
+            lineHeight: 1.05,
+            letterSpacing: "-0.03em",
+            color: "#f0f0f0",
           }}
         >
           {personalInfo.name}.
@@ -56,9 +62,13 @@ export function Hero() {
           style={{
             fontSize: "clamp(1.8rem, 6vw, 3.5rem)",
             fontWeight: 700,
-            color: "#8892b0",
             marginBottom: "1.5rem",
-            lineHeight: 1.2,
+            lineHeight: 1.15,
+            letterSpacing: "-0.02em",
+            background: "linear-gradient(135deg, #8892b0 0%, #64ffda 50%, #00d4ff 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
           }}
         >
           {personalInfo.tagline}
@@ -69,9 +79,9 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
           style={{
-            color: "#8892b0",
+            color: "#94a3b8",
             fontSize: "1.125rem",
-            maxWidth: "36rem",
+            maxWidth: "32rem",
             marginBottom: "2.5rem",
             lineHeight: 1.7,
           }}
@@ -88,43 +98,14 @@ export function Hero() {
           <a
             href="#projects"
             id="hero-cta-projects"
-            style={{
-              padding: "1rem 2rem",
-              border: "1px solid #64ffda",
-              color: "#64ffda",
-              borderRadius: "4px",
-              textDecoration: "none",
-              fontFamily: "monospace",
-              transition: "background 0.2s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "rgba(100,255,218,0.1)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
+            className="glow-btn glow-btn-outline"
           >
             Check out my work
           </a>
           <a
             href="#contact"
             id="hero-cta-contact"
-            style={{
-              padding: "1rem 2rem",
-              backgroundColor: "#64ffda",
-              color: "#0a0a0a",
-              borderRadius: "4px",
-              textDecoration: "none",
-              fontFamily: "monospace",
-              fontWeight: 600,
-              transition: "background 0.2s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "rgba(100,255,218,0.8)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "#64ffda")
-            }
+            className="glow-btn glow-btn-primary"
           >
             Get in touch
           </a>
@@ -141,6 +122,7 @@ export function Hero() {
           left: "50%",
           transform: "translateX(-50%)",
           color: "#64ffda",
+          opacity: 0.6,
         }}
       >
         <ArrowDown size={24} />

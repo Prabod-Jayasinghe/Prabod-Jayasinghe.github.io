@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Next.js 16 — Vercel handles optimization automatically.
+  output: "export",
+  images: {
+    unoptimized: true,
+  },
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
 };
 
 export default nextConfig;

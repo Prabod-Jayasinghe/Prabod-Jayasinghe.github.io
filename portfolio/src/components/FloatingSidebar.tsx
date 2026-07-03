@@ -72,18 +72,7 @@ export function FloatingSidebar() {
             href={href}
             target={href.startsWith("mailto") ? undefined : "_blank"}
             rel="noopener noreferrer"
-            style={{
-              color: "#8892b0",
-              transition: "color 0.2s, transform 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "#64ffda";
-              e.currentTarget.style.transform = "translateY(-4px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "#8892b0";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
+            className="social-icon-hover"
           >
             <Icon size={20} />
           </a>
@@ -92,7 +81,7 @@ export function FloatingSidebar() {
           style={{
             width: "1px",
             height: "6rem",
-            backgroundColor: "#8892b0",
+            background: "linear-gradient(180deg, #64ffda, transparent)",
           }}
         />
       </div>
@@ -117,18 +106,18 @@ export function FloatingSidebar() {
           style={{
             fontFamily: "monospace",
             fontSize: "0.75rem",
-            color: "#8892b0",
+            color: "#94a3b8",
             textDecoration: "none",
             writingMode: "vertical-rl",
             letterSpacing: "0.1em",
-            transition: "color 0.2s, transform 0.2s",
+            transition: "color 0.3s, transform 0.3s",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.color = "#64ffda";
             e.currentTarget.style.transform = "translateY(-4px)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#8892b0";
+            e.currentTarget.style.color = "#94a3b8";
             e.currentTarget.style.transform = "translateY(0)";
           }}
         >
@@ -138,7 +127,7 @@ export function FloatingSidebar() {
           style={{
             width: "1px",
             height: "6rem",
-            backgroundColor: "#8892b0",
+            background: "linear-gradient(180deg, #64ffda, transparent)",
           }}
         />
       </div>

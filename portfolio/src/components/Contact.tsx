@@ -2,7 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { Mail } from "lucide-react";
+import { Mail, Send, MapPin } from "lucide-react";
 import { usePortfolio } from "@/contexts/PortfolioContext";
 
 const GitHubIcon = ({ size = 24 }: { size?: number }) => (
@@ -48,18 +48,8 @@ export function Contact() {
   ];
 
   return (
-    <section
-      id="contact"
-      ref={ref}
-      style={{ padding: "6rem 1.5rem" }}
-    >
-      <div
-        style={{
-          maxWidth: "36rem",
-          margin: "0 auto",
-          textAlign: "center",
-        }}
-      >
+    <section id="contact" ref={ref} style={{ padding: "8rem 0", position: "relative", zIndex: 2 }}>
+      <div className="section-container" style={{ maxWidth: "36rem", textAlign: "center" }}>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -67,6 +57,7 @@ export function Contact() {
             color: "#64ffda",
             fontFamily: "monospace",
             marginBottom: "1rem",
+            fontSize: "1rem",
           }}
         >
           05. What&apos;s Next?
@@ -77,10 +68,11 @@ export function Contact() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.1 }}
           style={{
-            fontSize: "clamp(2rem, 5vw, 3rem)",
-            fontWeight: 700,
-            color: "#e6e6e6",
+            fontSize: "clamp(2rem, 5vw, 3.5rem)",
+            fontWeight: 800,
+            color: "#f0f0f0",
             marginBottom: "1.5rem",
+            letterSpacing: "-0.03em",
           }}
         >
           Get In Touch
@@ -91,7 +83,7 @@ export function Contact() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.2 }}
           style={{
-            color: "#8892b0",
+            color: "#94a3b8",
             fontSize: "1.125rem",
             marginBottom: "2.5rem",
             lineHeight: 1.7,
@@ -109,7 +101,7 @@ export function Contact() {
           style={{
             display: "flex",
             justifyContent: "center",
-            gap: "1.5rem",
+            gap: "1.25rem",
             marginBottom: "2.5rem",
             flexWrap: "wrap",
           }}
@@ -121,21 +113,17 @@ export function Contact() {
               href={href}
               target={href.startsWith("mailto") ? undefined : "_blank"}
               rel="noopener noreferrer"
+              className="social-icon-hover"
               style={{
-                color: "#8892b0",
-                transition: "color 0.2s, transform 0.2s",
                 display: "inline-flex",
+                padding: "0.75rem",
+                borderRadius: "12px",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#64ffda";
-                e.currentTarget.style.transform = "translateY(-3px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "#8892b0";
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
+              aria-label={id}
             >
-              <Icon size={24} />
+              <Icon size={22} />
             </a>
           ))}
         </motion.div>
@@ -153,31 +141,34 @@ export function Contact() {
               target="_blank"
               rel="noopener noreferrer"
               id="contact-whatsapp-cta"
+              className="glow-btn"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "0.6rem",
                 padding: "0.75rem 1.75rem",
-                backgroundColor: "rgba(37,211,102,0.12)",
-                border: "1px solid rgba(37,211,102,0.4)",
+                background: "rgba(37,211,102,0.1)",
+                border: "1px solid rgba(37,211,102,0.3)",
                 color: "#25d366",
-                borderRadius: "8px",
+                borderRadius: "9999px",
                 textDecoration: "none",
-                fontFamily: "monospace",
                 fontSize: "0.95rem",
-                transition: "all 0.2s",
+                fontWeight: 500,
+                transition: "all 0.3s ease",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "rgba(37,211,102,0.2)";
+                e.currentTarget.style.background = "rgba(37,211,102,0.2)";
                 e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 8px 30px rgba(37,211,102,0.2)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "rgba(37,211,102,0.12)";
+                e.currentTarget.style.background = "rgba(37,211,102,0.1)";
                 e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
               }}
             >
               <WhatsAppIcon size={18} />
-              Chat on WhatsApp · {whatsappNumber}
+              Chat on WhatsApp
             </a>
           </motion.div>
         )}
@@ -189,25 +180,10 @@ export function Contact() {
           transition={{ delay: 0.4 }}
           href={`mailto:${personalInfo.email}`}
           id="contact-say-hello"
-          style={{
-            display: "inline-block",
-            padding: "1rem 2rem",
-            border: "1px solid #64ffda",
-            color: "#64ffda",
-            borderRadius: "4px",
-            textDecoration: "none",
-            fontFamily: "monospace",
-            fontSize: "1rem",
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "rgba(100,255,218,0.1)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
+          className="glow-btn glow-btn-primary"
         >
-          Say Hello ✉️
+          <Send size={16} />
+          Say Hello
         </motion.a>
       </div>
     </section>

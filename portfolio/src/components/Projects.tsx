@@ -2,7 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { ExternalLink, GitFork } from "lucide-react";
+import { ExternalLink, GitFork, Folder } from "lucide-react";
 import { usePortfolio } from "@/contexts/PortfolioContext";
 
 // Inline GitHub SVG (lucide-react removed it)
@@ -25,32 +25,20 @@ export function Projects() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section
-      id="projects"
-      ref={ref}
-      style={{ padding: "6rem 1.5rem" }}
-    >
-      <div style={{ maxWidth: "72rem", margin: "0 auto" }}>
+    <section id="projects" ref={ref} style={{ padding: "8rem 0", position: "relative", zIndex: 2 }}>
+      <div className="section-container">
         <motion.h2
           initial={{ opacity: 0, x: -20 }}
           animate={isInView ? { opacity: 1, x: 0 } : {}}
           className="section-heading"
         >
-          <span
-            style={{
-              color: "#64ffda",
-              fontFamily: "monospace",
-              fontSize: "1.5rem",
-            }}
-          >
-            03.
-          </span>
+          <span className="number-badge">03.</span>
           Some Things I&apos;ve Built
           <span
             style={{
               flex: 1,
               height: "1px",
-              backgroundColor: "#233554",
+              background: "linear-gradient(90deg, rgba(100,255,218,0.3), transparent)",
               marginLeft: "1rem",
             }}
           />
@@ -59,7 +47,7 @@ export function Projects() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
             gap: "1.5rem",
           }}
         >
@@ -70,17 +58,18 @@ export function Projects() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.1 }}
               className="card project-card"
-              style={{ cursor: "pointer", display: "flex", flexDirection: "column" }}
+              style={{ cursor: "pointer", display: "flex", flexDirection: "column", overflow: "hidden" }}
             >
               {project.image && (
                 <div
                   style={{
                     width: "100%",
-                    height: "150px",
-                    borderRadius: "6px",
+                    height: "180px",
+                    borderRadius: "12px",
                     overflow: "hidden",
-                    marginBottom: "1rem",
-                    border: "1px solid #233554",
+                    marginBottom: "1.25rem",
+                    position: "relative",
+                    border: "1px solid rgba(255,255,255,0.06)",
                   }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -94,6 +83,7 @@ export function Projects() {
                     }}
                     className="project-snap-img"
                   />
+                  <div className="project-img-overlay" />
                 </div>
               )}
               {/* Card Header */}
@@ -107,36 +97,40 @@ export function Projects() {
               >
                 <div
                   style={{
-                    width: "3rem",
-                    height: "3rem",
-                    borderRadius: "6px",
-                    backgroundColor: "rgba(100,255,218,0.1)",
+                    width: "2.5rem",
+                    height: "2.5rem",
+                    borderRadius: "10px",
+                    background: "linear-gradient(135deg, rgba(100,255,218,0.15), rgba(0,212,255,0.15))",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "1.5rem",
+                    border: "1px solid rgba(100,255,218,0.1)",
                   }}
                 >
-                  📁
+                  <Folder size={18} color="#64ffda" />
                 </div>
-                <div style={{ display: "flex", gap: "1rem" }}>
+                <div style={{ display: "flex", gap: "0.75rem" }}>
                   <a
                     href={project.github}
                     target="_blank"
                     rel="noopener noreferrer"
                     id={`project-github-${i}`}
                     style={{
-                      color: "#8892b0",
-                      transition: "color 0.2s",
+                      color: "#94a3b8",
+                      transition: "all 0.3s ease",
+                      padding: "0.5rem",
+                      borderRadius: "8px",
                     }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.color = "#64ffda")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.color = "#8892b0")
-                    }
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "#64ffda";
+                      e.currentTarget.style.background = "rgba(100,255,218,0.08)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "#94a3b8";
+                      e.currentTarget.style.background = "transparent";
+                    }}
                   >
-                    <GitHubIcon size={20} />
+                    <GitHubIcon size={18} />
                   </a>
                   <a
                     href={project.live}
@@ -144,17 +138,21 @@ export function Projects() {
                     rel="noopener noreferrer"
                     id={`project-live-${i}`}
                     style={{
-                      color: "#8892b0",
-                      transition: "color 0.2s",
+                      color: "#94a3b8",
+                      transition: "all 0.3s ease",
+                      padding: "0.5rem",
+                      borderRadius: "8px",
                     }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.color = "#64ffda")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.color = "#8892b0")
-                    }
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "#64ffda";
+                      e.currentTarget.style.background = "rgba(100,255,218,0.08)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "#94a3b8";
+                      e.currentTarget.style.background = "transparent";
+                    }}
                   >
-                    <ExternalLink size={20} />
+                    <ExternalLink size={18} />
                   </a>
                 </div>
               </div>
@@ -163,11 +161,11 @@ export function Projects() {
               <h3
                 className="project-title"
                 style={{
-                  fontSize: "1.25rem",
+                  fontSize: "1.15rem",
                   fontWeight: 700,
-                  color: "#e6e6e6",
+                  color: "#f0f0f0",
                   marginBottom: "0.5rem",
-                  transition: "color 0.2s",
+                  transition: "color 0.3s ease",
                 }}
               >
                 {project.title}
@@ -176,25 +174,29 @@ export function Projects() {
               {/* Description */}
               <p
                 style={{
-                  color: "#8892b0",
-                  fontSize: "0.875rem",
+                  color: "#94a3b8",
+                  fontSize: "0.9rem",
                   lineHeight: 1.7,
                   flex: 1,
-                  marginBottom: "1rem",
+                  marginBottom: "1.25rem",
                 }}
               >
                 {project.description}
               </p>
 
               {/* Tech Tags */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                 {project.technologies.map((tech) => (
                   <span
                     key={tech}
                     style={{
                       fontSize: "0.75rem",
                       fontFamily: "monospace",
-                      color: "#8892b0",
+                      color: "#64ffda",
+                      padding: "0.25rem 0.75rem",
+                      background: "rgba(100,255,218,0.06)",
+                      borderRadius: "9999px",
+                      border: "1px solid rgba(100,255,218,0.1)",
                     }}
                   >
                     {tech}
@@ -210,31 +212,17 @@ export function Projects() {
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.5 }}
-          style={{ textAlign: "center", marginTop: "3rem" }}
+          style={{ textAlign: "center", marginTop: "3.5rem" }}
         >
           <a
             href={personalInfo.github}
             target="_blank"
             rel="noopener noreferrer"
             id="view-all-projects"
-            style={{
-              display: "inline-block",
-              padding: "1rem 2rem",
-              border: "1px solid #64ffda",
-              color: "#64ffda",
-              borderRadius: "4px",
-              textDecoration: "none",
-              fontFamily: "monospace",
-              transition: "background 0.2s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "rgba(100,255,218,0.1)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
+            className="glow-btn glow-btn-outline"
           >
             View Full Project Archive
+            <ExternalLink size={16} />
           </a>
         </motion.div>
       </div>
@@ -244,10 +232,10 @@ export function Projects() {
           color: #64ffda !important;
         }
         .project-snap-img {
-          transition: transform 0.3s cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+          transition: transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1) !important;
         }
         .project-card:hover .project-snap-img {
-          transform: scale(1.05) !important;
+          transform: scale(1.08) !important;
         }
       `}</style>
     </section>

@@ -20,68 +20,65 @@ export function Skills() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section
-      id="skills"
-      ref={ref}
-      style={{ padding: "6rem 1.5rem" }}
-    >
-      <div style={{ maxWidth: "72rem", margin: "0 auto" }}>
+    <section id="skills" ref={ref} style={{ padding: "8rem 0", position: "relative", zIndex: 2 }}>
+      <div className="section-container">
         <motion.h2
           initial={{ opacity: 0, x: -20 }}
           animate={isInView ? { opacity: 1, x: 0 } : {}}
           className="section-heading"
         >
-          <span
-            style={{
-              color: "#64ffda",
-              fontFamily: "monospace",
-              fontSize: "1.5rem",
-            }}
-          >
-            04.
-          </span>
+          <span className="number-badge">04.</span>
           Technical Skills
           <span
             style={{
               flex: 1,
               height: "1px",
-              backgroundColor: "#233554",
+              background: "linear-gradient(90deg, rgba(100,255,218,0.3), transparent)",
               marginLeft: "1rem",
             }}
           />
         </motion.h2>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-            gap: "1rem",
-          }}
-        >
+        <div className="bento-grid">
           {skillCategories.map((category, i) => {
             const Icon = category.icon;
+            const isLarge = i === 0 || i === 3;
             return (
               <motion.div
                 key={category.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: i * 0.1 }}
-                className="card"
+                className={`card ${isLarge ? "bento-large" : ""}`}
+                style={{ padding: "1.75rem" }}
               >
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: "0.75rem",
-                    marginBottom: "1rem",
+                    marginBottom: "1.25rem",
                   }}
                 >
-                  <Icon color="#64ffda" size={20} />
+                  <div
+                    style={{
+                      width: "2.5rem",
+                      height: "2.5rem",
+                      borderRadius: "10px",
+                      background: "linear-gradient(135deg, rgba(100,255,218,0.15), rgba(0,212,255,0.15))",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "1px solid rgba(100,255,218,0.1)",
+                    }}
+                  >
+                    <Icon color="#64ffda" size={18} />
+                  </div>
                   <h3
                     style={{
-                      fontFamily: "monospace",
-                      color: "#e6e6e6",
+                      color: "#f0f0f0",
                       fontWeight: 600,
+                      fontSize: "1.1rem",
                     }}
                   >
                     {category.title}
@@ -92,12 +89,25 @@ export function Skills() {
                     <span
                       key={item}
                       style={{
-                        padding: "0.25rem 0.75rem",
-                        fontSize: "0.75rem",
+                        padding: "0.4rem 1rem",
+                        fontSize: "0.8rem",
                         fontFamily: "monospace",
                         color: "#64ffda",
-                        backgroundColor: "rgba(100,255,218,0.1)",
-                        borderRadius: "4px",
+                        background: "rgba(100,255,218,0.06)",
+                        borderRadius: "9999px",
+                        border: "1px solid rgba(100,255,218,0.1)",
+                        transition: "all 0.3s ease",
+                        cursor: "default",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "rgba(100,255,218,0.12)";
+                        e.currentTarget.style.borderColor = "rgba(100,255,218,0.3)";
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "rgba(100,255,218,0.06)";
+                        e.currentTarget.style.borderColor = "rgba(100,255,218,0.1)";
+                        e.currentTarget.style.transform = "translateY(0)";
                       }}
                     >
                       {item}
