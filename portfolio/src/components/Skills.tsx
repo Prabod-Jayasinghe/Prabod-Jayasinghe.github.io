@@ -29,7 +29,6 @@ export function Skills() {
           animate={isInView ? { opacity: 1, x: 0 } : {}}
           className="section-heading"
         >
-          <span className="number-badge">04.</span>
           Technical Skills
           <span
             style={{

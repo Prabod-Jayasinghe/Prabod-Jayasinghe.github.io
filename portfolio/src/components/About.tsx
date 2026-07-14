@@ -36,7 +36,6 @@ export function About() {
           animate={isInView ? { opacity: 1, x: 0 } : {}}
           className="section-heading"
         >
-          <span className="number-badge">01.</span>
           About Me
           <span
             style={{

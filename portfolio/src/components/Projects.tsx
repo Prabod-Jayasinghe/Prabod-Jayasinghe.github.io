@@ -34,7 +34,6 @@ export function Projects() {
           animate={isInView ? { opacity: 1, x: 0 } : {}}
           className="section-heading"
         >
-          <span className="number-badge">03.</span>
           Some Things I&apos;ve Built
           <span
             style={{

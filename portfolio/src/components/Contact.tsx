@@ -62,7 +62,7 @@ export function Contact() {
             fontSize: "1rem",
           }}
         >
-          05. What&apos;s Next?
+          What&apos;s Next?
         </motion.p>
 
         <motion.h2

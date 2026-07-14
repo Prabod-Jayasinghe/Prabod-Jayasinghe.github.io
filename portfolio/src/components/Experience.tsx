@@ -28,7 +28,6 @@ export function Experience() {
           animate={isInView ? { opacity: 1, x: 0 } : {}}
           className="section-heading"
         >
-          <span className="number-badge">02.</span>
           Where I&apos;ve Worked
           <span
             style={{
