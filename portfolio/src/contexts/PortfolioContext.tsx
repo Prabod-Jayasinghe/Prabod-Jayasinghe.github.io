@@ -6,6 +6,8 @@ import {
   defaultData,
   loadPortfolioData,
   savePortfolioData,
+  fetchPortfolioFromFirestore,
+  savePortfolioToFirestore,
 } from "@/lib/portfolioStore";
 
 interface PortfolioContextValue {
@@ -21,22 +23,20 @@ const PortfolioContext = createContext<PortfolioContextValue>({
 });
 
 export function PortfolioProvider({ children }: { children: React.ReactNode }) {
-  const [data, setData] = useState<PortfolioData>(defaultData);
+  // Initialize from local cache synchronously to avoid layout shifts or blank screens
+  const [data, setData] = useState<PortfolioData>(loadPortfolioData);
 
-  // Load from server-side database on mount
+  // Load from Firestore database asynchronously on mount
   useEffect(() => {
-    fetch("/api/portfolio")
-      .then((res) => res.json())
+    fetchPortfolioFromFirestore()
       .then((dbData) => {
-        if (dbData && !dbData.error) {
+        if (dbData) {
           setData(dbData);
           savePortfolioData(dbData); // Sync local storage cache
-        } else {
-          setData(loadPortfolioData());
         }
       })
-      .catch(() => {
-        setData(loadPortfolioData());
+      .catch((err) => {
+        console.error("Failed to load from Firestore on mount:", err);
       });
   }, []);
 
@@ -51,30 +51,24 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateData = async (newData: PortfolioData) => {
+    // Update local cache and state immediately
     savePortfolioData(newData);
     setData(newData);
     try {
-      await fetch("/api/portfolio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newData),
-      });
+      await savePortfolioToFirestore(newData);
     } catch (err) {
-      console.error("Failed to save to database:", err);
+      console.error("Failed to save to Firestore database:", err);
     }
   };
 
   const resetData = async () => {
+    // Reset local cache and state immediately
     savePortfolioData(defaultData);
     setData(defaultData);
     try {
-      await fetch("/api/portfolio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(defaultData),
-      });
+      await savePortfolioToFirestore(defaultData);
     } catch (err) {
-      console.error("Failed to reset database:", err);
+      console.error("Failed to reset Firestore database:", err);
     }
   };
 

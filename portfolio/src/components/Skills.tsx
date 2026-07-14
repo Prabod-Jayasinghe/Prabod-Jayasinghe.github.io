@@ -7,6 +7,10 @@ import { usePortfolio } from "@/contexts/PortfolioContext";
 
 export function Skills() {
   const { data } = usePortfolio();
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  if (data.visibleSections?.skills === false) return null;
   const { skills } = data;
   const skillCategories = [
     { title: "Languages", icon: Code2, items: skills.languages },
@@ -16,8 +20,6 @@ export function Skills() {
     { title: "AI & ML", icon: Brain, items: skills.ai },
     { title: "Tools", icon: Wrench, items: skills.tools },
   ];
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
     <section id="skills" ref={ref} style={{ padding: "8rem 0", position: "relative", zIndex: 2 }}>

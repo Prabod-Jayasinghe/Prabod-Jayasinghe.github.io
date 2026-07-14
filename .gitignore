@@ -1,0 +1,11 @@
+# IDE and tool configurations
+.agents/
+.agents
+portfolio/.agents/
+portfolio/skills-lock.json
+
+# Local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

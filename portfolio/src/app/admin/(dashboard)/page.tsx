@@ -1,20 +1,19 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { usePortfolio } from "@/contexts/PortfolioContext";
 import { PortfolioData } from "@/lib/portfolioStore";
 import {
   Save, RotateCcw, Plus, Trash2, ChevronDown, ChevronUp,
-  CheckCircle, Home, X as XIcon, LogOut, Upload, FileText,
+  CheckCircle, Home, X as XIcon, LogOut, Upload, GripVertical,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 type Tab = "personal" | "about" | "experience" | "projects" | "skills";
 type PersonalInfoExt = PortfolioData["personalInfo"] & { whatsapp?: string };
-
-const SESSION_KEY = "portfolio_admin_session";
-const RESUME_KEY = "portfolio_resume"; // stores { name, size, data: base64 }
 
 interface ConfirmOptions {
   title: string;
@@ -207,153 +206,7 @@ function TagInput({ tags, onChange, requestConfirm, placeholder = "Type and pres
   );
 }
 
-// ─── Resume Uploader ──────────────────────────────────────────────────────────
-interface ResumeFile { name: string; size: number; data: string; } // data = base64
 
-function ResumeUploader({
-  requestConfirm,
-  onResumeChange,
-}: {
-  requestConfirm: (options: ConfirmOptions) => void;
-  onResumeChange: (url: string | null) => void;
-}) {
-  const [resumeFile, setResumeFile] = useState<ResumeFile | null>(null);
-  const [dragging, setDragging] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(RESUME_KEY);
-      if (stored) setResumeFile(JSON.parse(stored));
-    } catch { /* ignore */ }
-  }, []);
-
-  const processFile = (file: File) => {
-    if (file.type !== "application/pdf") { alert("Please upload a PDF file."); return; }
-    if (file.size > 10 * 1024 * 1024) { alert("File must be under 10 MB."); return; }
-    
-    const performUpload = async () => {
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        const result = await res.json();
-        if (result.success) {
-          const obj: ResumeFile = { name: result.name, size: result.size, data: "server" };
-          localStorage.setItem(RESUME_KEY, JSON.stringify(obj));
-          setResumeFile(obj);
-          onResumeChange(result.url);
-        } else {
-          alert("Failed to upload: " + (result.error || "Unknown error"));
-        }
-      } catch (err) {
-        console.error(err);
-        alert("An error occurred during upload.");
-      }
-    };
-
-    requestConfirm({
-      title: resumeFile ? "Replace Resume" : "Upload Resume",
-      message: resumeFile 
-        ? `Are you sure you want to replace the current resume with "${file.name}"?`
-        : `Are you sure you want to upload "${file.name}" as your resume?`,
-      confirmText: "Upload",
-      onConfirm: performUpload,
-    });
-  };
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault(); setDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) processFile(file);
-  }, [resumeFile]);
-
-  const handleRemove = () => {
-    requestConfirm({
-      title: "Remove Resume",
-      message: "Are you sure you want to delete the uploaded resume? This cannot be undone.",
-      confirmText: "Delete",
-      isDanger: true,
-      onConfirm: async () => {
-        try {
-          await fetch("/api/upload", { method: "DELETE" });
-          localStorage.removeItem(RESUME_KEY);
-          setResumeFile(null);
-          onResumeChange(null);
-        } catch (err) {
-          console.error("Failed to delete resume:", err);
-        }
-      }
-    });
-  };
-
-  const handleDownload = () => {
-    if (!resumeFile) return;
-    const link = document.createElement("a");
-    link.href = resumeFile.data === "server" ? "/resume.pdf" : resumeFile.data;
-    link.download = resumeFile.name;
-    link.click();
-  };
-
-  const formatSize = (bytes: number) => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-
-  if (resumeFile) {
-    return (
-      <div style={{ border: "1px solid rgba(100,255,218,0.3)", borderRadius: "8px", padding: "1rem", backgroundColor: "rgba(100,255,218,0.05)", marginBottom: "1rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <div style={{ width: "36px", height: "36px", borderRadius: "6px", backgroundColor: "rgba(100,255,218,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <FileText size={18} color="#64ffda" />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ color: "#e6e6e6", fontSize: "0.9rem", fontWeight: 600, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{resumeFile.name}</p>
-            <p style={{ color: "#8892b0", fontSize: "0.78rem", margin: 0, fontFamily: "monospace" }}>{formatSize(resumeFile.size)} · PDF</p>
-          </div>
-          <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
-            <button onClick={handleDownload} style={{ padding: "0.35rem 0.8rem", backgroundColor: "rgba(100,255,218,0.1)", color: "#64ffda", border: "1px solid rgba(100,255,218,0.3)", borderRadius: "5px", fontSize: "0.78rem", cursor: "pointer", fontFamily: "monospace" }}>
-              Preview
-            </button>
-            <button onClick={() => inputRef.current?.click()} style={{ padding: "0.35rem 0.8rem", backgroundColor: "transparent", color: "#8892b0", border: "1px solid #233554", borderRadius: "5px", fontSize: "0.78rem", cursor: "pointer" }}>
-              Replace
-            </button>
-            <button onClick={handleRemove} style={{ padding: "0.35rem 0.6rem", backgroundColor: "rgba(255,80,80,0.1)", color: "#ff6b6b", border: "1px solid rgba(255,80,80,0.3)", borderRadius: "5px", fontSize: "0.78rem", cursor: "pointer", display: "flex", alignItems: "center" }}>
-              <Trash2 size={13} />
-            </button>
-          </div>
-        </div>
-        <input ref={inputRef} type="file" accept=".pdf" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); e.target.value = ""; }} />
-      </div>
-    );
-  }
-
-  return (
-    <div
-      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-      onDragLeave={() => setDragging(false)}
-      onDrop={handleDrop}
-      onClick={() => inputRef.current?.click()}
-      style={{
-        border: `2px dashed ${dragging ? "#64ffda" : "#233554"}`,
-        borderRadius: "8px",
-        padding: "2rem 1rem",
-        textAlign: "center",
-        cursor: "pointer",
-        backgroundColor: dragging ? "rgba(100,255,218,0.05)" : "transparent",
-        transition: "all 0.2s",
-        marginBottom: "1rem",
-      }}
-    >
-      <Upload size={28} color={dragging ? "#64ffda" : "#8892b0"} style={{ margin: "0 auto 0.75rem" }} />
-      <p style={{ color: "#e6e6e6", fontSize: "0.9rem", marginBottom: "0.25rem" }}>
-        {dragging ? "Drop your PDF here" : "Drag & drop your resume PDF"}
-      </p>
-      <p style={{ color: "#8892b0", fontSize: "0.8rem", fontFamily: "monospace" }}>or click to browse · max 10 MB</p>
-      <input ref={inputRef} type="file" accept=".pdf" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); e.target.value = ""; }} />
-    </div>
-  );
-}
 
 // ─── Project Image Uploader ───────────────────────────────────────────────────
 function ProjectImageUploader({
@@ -471,6 +324,7 @@ export default function AdminPage() {
   const [saved, setSaved] = useState(false);
   const [expandedExp, setExpandedExp] = useState<number | null>(0);
   const [expandedProj, setExpandedProj] = useState<number | null>(0);
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
 
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -499,7 +353,11 @@ export default function AdminPage() {
     });
   };
 
-  useEffect(() => { setDraft(data); }, [data]);
+  const [prevData, setPrevData] = useState<PortfolioData>(data);
+  if (data !== prevData) {
+    setDraft(data);
+    setPrevData(data);
+  }
 
   const handleSave = () => {
     requestConfirm({
@@ -524,10 +382,13 @@ export default function AdminPage() {
     });
   };
 
-  const handleLogout = () => {
-    document.cookie = "portfolio_admin_session=; path=/; max-age=0; SameSite=Lax";
-    localStorage.removeItem(SESSION_KEY);
-    router.push("/admin/login");
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push("/admin/login");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   };
 
   const setPersonal = (key: string, value: string) =>
@@ -699,12 +560,29 @@ export default function AdminPage() {
                 <div><label style={S.label}>Twitter / X URL</label><input style={S.input} value={personalExt.twitter} onChange={(e) => setPersonal("twitter", e.target.value)} /></div>
               </div>
 
-              {/* Resume Upload */}
-              <label style={{ ...S.label, marginTop: "0.5rem" }}>Resume / CV (PDF)</label>
-              <ResumeUploader requestConfirm={requestConfirm} onResumeChange={(url) => setPersonal("resume", url || "")} />
-              <p style={{ fontSize: "0.75rem", color: "#8892b0", fontFamily: "monospace", marginTop: "-0.5rem" }}>
-                Upload your resume PDF. It will be served as a download from the portfolio.
-              </p>
+              {/* Navigation Links Visibility */}
+              <label style={{ ...S.label, marginTop: "1rem" }}>Visible Sections in Navigation Bar</label>
+              <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", backgroundColor: "#0d1b2e", border: "1px solid #233554", borderRadius: "6px", padding: "0.85rem 1rem", marginBottom: "1rem" }}>
+                {(["about", "experience", "projects", "skills", "contact"] as const).map((sec) => (
+                  <label key={sec} style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", color: "#e6e6e6", fontSize: "0.9rem", fontFamily: "monospace" }}>
+                    <input
+                      type="checkbox"
+                      checked={draft.visibleSections?.[sec] !== false}
+                      onChange={(e) => {
+                        setDraft((d) => ({
+                          ...d,
+                          visibleSections: {
+                            ...(d.visibleSections ?? { about: true, experience: true, projects: true, skills: true, contact: true }),
+                            [sec]: e.target.checked,
+                          },
+                        }));
+                      }}
+                      style={{ cursor: "pointer", accentColor: "#64ffda" }}
+                    />
+                    {sec.charAt(0).toUpperCase() + sec.slice(1)}
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -787,9 +665,45 @@ export default function AdminPage() {
           <div>
             <p style={S.sectionTitle}>🚀 Projects <span style={S.badge}>{draft.projects.length} projects</span></p>
             {draft.projects.map((proj, i) => (
-              <div key={i} style={S.card}>
-                <div style={S.expHeader} onClick={() => setExpandedProj(expandedProj === i ? null : i)}>
-                  <span style={{ fontWeight: 700, color: "#e6e6e6" }}>{proj.title}</span>
+              <div
+                key={i}
+                style={{
+                  ...S.card,
+                  opacity: draggedIdx === i ? 0.4 : 1,
+                  border: draggedIdx !== null && draggedIdx !== i ? "1px dashed #64ffda" : S.card.border,
+                }}
+                draggable
+                onDragStart={(e) => {
+                  setDraggedIdx(i);
+                  e.dataTransfer.effectAllowed = "move";
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (draggedIdx === null || draggedIdx === i) return;
+                  const projs = [...draft.projects];
+                  const [draggedItem] = projs.splice(draggedIdx, 1);
+                  projs.splice(i, 0, draggedItem);
+                  setDraft((d) => ({ ...d, projects: projs }));
+                  setDraggedIdx(null);
+                }}
+                onDragEnd={() => setDraggedIdx(null)}
+              >
+                <div
+                  style={{ ...S.expHeader, gap: "0.75rem" }}
+                  onClick={() => setExpandedProj(expandedProj === i ? null : i)}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1 }}>
+                    <div
+                      style={{ cursor: "grab", color: "#8892b0", padding: "0.2rem" }}
+                      onClick={(e) => e.stopPropagation()} // Don't toggle accordion when dragging handle
+                    >
+                      <GripVertical size={16} />
+                    </div>
+                    <span style={{ fontWeight: 700, color: "#e6e6e6" }}>{proj.title}</span>
+                  </div>
                   <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
                     <button style={S.btnDanger} onClick={(e) => { e.stopPropagation(); removeProj(i); }}><Trash2 size={12} /> Remove</button>
                     {expandedProj === i ? <ChevronUp size={18} color="#8892b0" /> : <ChevronDown size={18} color="#8892b0" />}

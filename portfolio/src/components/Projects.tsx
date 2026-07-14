@@ -2,7 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { ExternalLink, GitFork, Folder } from "lucide-react";
+import { ExternalLink, Folder } from "lucide-react";
 import { usePortfolio } from "@/contexts/PortfolioContext";
 
 // Inline GitHub SVG (lucide-react removed it)
@@ -20,9 +20,11 @@ const GitHubIcon = ({ size = 20 }: { size?: number }) => (
 
 export function Projects() {
   const { data } = usePortfolio();
-  const { projects, personalInfo } = data;
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  if (data.visibleSections?.projects === false) return null;
+  const { projects, personalInfo } = data;
 
   return (
     <section id="projects" ref={ref} style={{ padding: "8rem 0", position: "relative", zIndex: 2 }}>

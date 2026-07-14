@@ -2,15 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Lock, Eye, EyeOff, LogIn } from "lucide-react";
-
-const SESSION_KEY = "portfolio_admin_session";
-// Set NEXT_PUBLIC_ADMIN_PASSWORD in your .env.local / Vercel env vars.
-// Falls back to a dev-only default.
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? "Admin@1234";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
@@ -18,26 +17,33 @@ export default function LoginPage() {
 
   // If already logged in, skip to admin
   useEffect(() => {
-    const hasCookie = document.cookie.split("; ").some((row) => row.startsWith("portfolio_admin_session=1"));
-    if (hasCookie || localStorage.getItem(SESSION_KEY) === "1") {
-      router.replace("/admin");
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.replace("/admin");
+      }
+    });
+    return () => unsubscribe();
   }, [router]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setTimeout(() => {
-      if (password === ADMIN_PASSWORD) {
-        document.cookie = "portfolio_admin_session=1; path=/; SameSite=Lax; max-age=86400";
-        localStorage.setItem(SESSION_KEY, "1");
-        router.push("/admin");
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push("/admin");
+    } catch (err) {
+      console.error("Login error:", err);
+      const firebaseError = err as { code?: string; message?: string };
+      if (firebaseError.code === "auth/invalid-credential" || firebaseError.code === "auth/user-not-found" || firebaseError.code === "auth/wrong-password") {
+        setError("Invalid email or password. Please try again.");
+      } else if (firebaseError.code === "auth/too-many-requests") {
+        setError("Too many login attempts. Please try again later.");
       } else {
-        setError("Incorrect password. Please try again.");
-        setLoading(false);
+        setError(firebaseError.message || "An authentication error occurred.");
       }
-    }, 600); // Small delay for UX
+      setLoading(false);
+    }
   };
 
   return (
@@ -140,6 +146,48 @@ export default function LoginPage() {
                 letterSpacing: "0.06em",
               }}
             >
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setError(""); }}
+              autoFocus
+              required
+              placeholder="Enter admin email"
+              style={{
+                width: "100%",
+                backgroundColor: "#0d1b2e",
+                border: `1px solid ${error ? "#ff6b6b" : "#233554"}`,
+                borderRadius: "8px",
+                color: "#e6e6e6",
+                padding: "0.75rem 1rem",
+                fontSize: "1rem",
+                outline: "none",
+                boxSizing: "border-box",
+                transition: "border-color 0.2s",
+                fontFamily: "inherit",
+                marginBottom: "1.25rem",
+              }}
+              onFocus={(e) => {
+                if (!error) e.currentTarget.style.borderColor = "#64ffda";
+              }}
+              onBlur={(e) => {
+                if (!error) e.currentTarget.style.borderColor = "#233554";
+              }}
+            />
+
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.78rem",
+                fontFamily: "monospace",
+                color: "#64ffda",
+                marginBottom: "0.5rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+              }}
+            >
               Password
             </label>
             <div style={{ position: "relative", marginBottom: "1.25rem" }}>
@@ -147,7 +195,6 @@ export default function LoginPage() {
                 type={showPw ? "text" : "password"}
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setError(""); }}
-                autoFocus
                 required
                 placeholder="Enter admin password"
                 style={{
@@ -209,7 +256,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading || !password}
+              disabled={loading || !email || !password}
               style={{
                 width: "100%",
                 display: "flex",
@@ -217,13 +264,13 @@ export default function LoginPage() {
                 justifyContent: "center",
                 gap: "0.6rem",
                 padding: "0.85rem",
-                backgroundColor: loading || !password ? "rgba(100,255,218,0.4)" : "#64ffda",
+                backgroundColor: loading || !email || !password ? "rgba(100,255,218,0.4)" : "#64ffda",
                 color: "#0a0a0a",
                 border: "none",
                 borderRadius: "8px",
                 fontWeight: 700,
                 fontSize: "1rem",
-                cursor: loading || !password ? "not-allowed" : "pointer",
+                cursor: loading || !email || !password ? "not-allowed" : "pointer",
                 fontFamily: "monospace",
                 transition: "all 0.2s",
               }}
@@ -253,9 +300,9 @@ export default function LoginPage() {
         </div>
 
         <p style={{ textAlign: "center", color: "#8892b0", fontSize: "0.8rem", marginTop: "1.5rem", fontFamily: "monospace" }}>
-          <a href="/" style={{ color: "#64ffda", textDecoration: "none" }}>
+          <Link href="/" style={{ color: "#64ffda", textDecoration: "none" }}>
             ← Back to portfolio
-          </a>
+          </Link>
         </p>
       </div>
 

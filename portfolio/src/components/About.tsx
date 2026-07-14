@@ -7,9 +7,11 @@ import { MapPin, Code2 } from "lucide-react";
 
 export function About() {
   const { data } = usePortfolio();
-  const { personalInfo, aboutMe } = data;
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  if (data.visibleSections?.about === false) return null;
+  const { personalInfo, aboutMe } = data;
 
   const paragraphs = aboutMe?.paragraphs ?? [
     `Hello! I'm ${personalInfo.name}, a passionate software engineer based in ${personalInfo.location}. I enjoy creating things that live on the internet and crafting experiences that delight users.`,

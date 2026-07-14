@@ -2,7 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { Mail, Send, MapPin } from "lucide-react";
+import { Mail, Send } from "lucide-react";
 import { usePortfolio } from "@/contexts/PortfolioContext";
 
 const GitHubIcon = ({ size = 24 }: { size?: number }) => (
@@ -31,9 +31,11 @@ const WhatsAppIcon = ({ size = 24 }: { size?: number }) => (
 
 export function Contact() {
   const { data } = usePortfolio();
-  const { personalInfo } = data;
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  if (data.visibleSections?.contact === false) return null;
+  const { personalInfo } = data;
 
   const whatsappNumber = (personalInfo as typeof personalInfo & { whatsapp?: string }).whatsapp;
 

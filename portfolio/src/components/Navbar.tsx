@@ -6,21 +6,27 @@ import { Menu, X } from "lucide-react";
 import { usePortfolio } from "@/contexts/PortfolioContext";
 
 const navLinks = [
-  { name: "About", href: "#about" },
-  { name: "Experience", href: "#experience" },
-  { name: "Projects", href: "#projects" },
-  { name: "Skills", href: "#skills" },
-  { name: "Contact", href: "#contact" },
+  { name: "About", href: "#about", key: "about" },
+  { name: "Experience", href: "#experience", key: "experience" },
+  { name: "Projects", href: "#projects", key: "projects" },
+  { name: "Skills", href: "#skills", key: "skills" },
+  { name: "Contact", href: "#contact", key: "contact" },
 ];
-
-const RESUME_KEY = "portfolio_resume";
 
 export function Navbar() {
   const { data } = usePortfolio();
   const { personalInfo } = data;
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [resumeHref, setResumeHref] = useState("/resume.pdf");
+
+  const visible = data.visibleSections ?? {
+    about: true,
+    experience: true,
+    projects: true,
+    skills: true,
+    contact: true
+  };
+  const activeLinks = navLinks.filter(link => visible[link.key as keyof typeof visible] !== false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -28,27 +34,7 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Build resume href: prefer uploaded file, fall back to personalInfo URL
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(RESUME_KEY);
-      if (stored) {
-        const { data: b64 } = JSON.parse(stored);
-        if (b64 && b64.startsWith("data:")) {
-          fetch(b64)
-            .then((r) => r.blob())
-            .then((blob) => {
-              const url = URL.createObjectURL(blob);
-              setResumeHref(url);
-            });
-          return;
-        }
-      }
-    } catch {
-      /* ignore */
-    }
-    setResumeHref(personalInfo.resume ?? "/resume.pdf");
-  }, [personalInfo.resume]);
+
 
   return (
     <motion.nav
@@ -100,22 +86,12 @@ export function Navbar() {
           className="hidden md:flex"
           style={{ alignItems: "center", gap: "2.5rem" }}
         >
-          {navLinks.map((link) => (
+          {activeLinks.map((link) => (
             <a key={link.name} href={link.href} className="nav-link">
               {link.name}
             </a>
           ))}
-          <a
-            href={resumeHref}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-            id="nav-resume"
-            className="glow-btn glow-btn-outline"
-            style={{ padding: "0.5rem 1.25rem", fontSize: "0.8rem" }}
-          >
-            Resume
-          </a>
+
         </div>
 
         {/* Mobile Menu Button */}
@@ -152,7 +128,7 @@ export function Navbar() {
                 gap: "1.25rem",
               }}
             >
-              {navLinks.map((link) => (
+              {activeLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
@@ -170,16 +146,7 @@ export function Navbar() {
                   {link.name}
                 </a>
               ))}
-              <a
-                href={resumeHref}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
-                className="glow-btn glow-btn-outline"
-                style={{ marginTop: "0.5rem", justifyContent: "center" }}
-              >
-                Resume
-              </a>
+
             </div>
           </motion.div>
         )}

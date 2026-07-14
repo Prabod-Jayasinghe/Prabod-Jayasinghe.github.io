@@ -1,6 +1,8 @@
 "use client";
 
 import { personalInfo, experiences, projects, skills, aboutMe } from "./data";
+import { db } from "./firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export type PersonalInfo = typeof personalInfo;
 export type Experience = (typeof experiences)[0];
@@ -14,6 +16,13 @@ export interface PortfolioData {
   experiences: Experience[];
   projects: Project[];
   skills: Skills;
+  visibleSections?: {
+    about: boolean;
+    experience: boolean;
+    projects: boolean;
+    skills: boolean;
+    contact: boolean;
+  };
 }
 
 const STORAGE_KEY = "portfolio_data";
@@ -26,6 +35,13 @@ export const defaultData: PortfolioData = {
   experiences,
   projects,
   skills,
+  visibleSections: {
+    about: true,
+    experience: true,
+    projects: true,
+    skills: true,
+    contact: true,
+  },
 };
 
 export function loadPortfolioData(): PortfolioData {
@@ -69,4 +85,27 @@ export function resetPortfolioData(): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEY);
   window.dispatchEvent(new CustomEvent("portfolioDataUpdated", { detail: defaultData }));
+}
+
+export async function fetchPortfolioFromFirestore(): Promise<PortfolioData | null> {
+  try {
+    const docRef = doc(db, "portfolio", "data");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data() as PortfolioData;
+    }
+  } catch (error) {
+    console.error("Error fetching from Firestore:", error);
+  }
+  return null;
+}
+
+export async function savePortfolioToFirestore(data: PortfolioData): Promise<void> {
+  try {
+    const docRef = doc(db, "portfolio", "data");
+    await setDoc(docRef, data);
+  } catch (error) {
+    console.error("Error saving to Firestore:", error);
+    throw error;
+  }
 }

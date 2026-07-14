@@ -3,14 +3,16 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { usePortfolio } from "@/contexts/PortfolioContext";
-import { Briefcase, Calendar, ChevronRight } from "lucide-react";
+import { Briefcase, Calendar } from "lucide-react";
 
 export function Experience() {
   const { data } = usePortfolio();
-  const { experiences } = data;
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [activeTab, setActiveTab] = useState(0);
+
+  if (data.visibleSections?.experience === false) return null;
+  const { experiences } = data;
 
   if (!experiences || experiences.length === 0) {
     return null;

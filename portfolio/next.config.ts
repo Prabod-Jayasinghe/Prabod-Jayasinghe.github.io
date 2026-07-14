@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  trailingSlash: true,
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
 };
 
